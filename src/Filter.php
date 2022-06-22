@@ -74,7 +74,7 @@ class Filter extends DataTransferObject
         }
 
         // (guard) order value invalid
-        if (false == in_array(strtolower($order), ['asc', 'desc'])) {
+        if (false == in_array(strtolower($order), ['asc', 'desc'], true)) {
             $order = $model->getSortOrderDefault();
         }
 
@@ -88,7 +88,7 @@ class Filter extends DataTransferObject
                 continue;
             }
 
-            if ('sort' != $f->name && true == in_array($f->name, $model->getFilterable()) && true == Schema::hasColumn($model->getTable(), $f->name)) {
+            if ('sort' != $f->name && true == in_array($f->name, $model->getFilterable(), true) && true == Schema::hasColumn($model->getTable(), $f->name)) {
                 $callable = [$this, $f->name];
 
                 // (guard)

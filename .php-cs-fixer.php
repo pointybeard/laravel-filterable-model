@@ -28,6 +28,7 @@ return (new PhpCsFixer\Config())
         'no_trailing_comma_in_singleline_array' => true,
         'no_unused_imports' => true,
         'no_whitespace_in_blank_line' => true,
+        'no_superfluous_phpdoc_tags' => false,
         'object_operator_without_whitespace' => true,
         'phpdoc_align' => true,
         'phpdoc_indent' => true,
