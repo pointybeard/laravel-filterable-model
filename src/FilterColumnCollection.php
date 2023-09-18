@@ -11,12 +11,8 @@ class FilterColumnCollection extends Collection
 {
     /**
      * Get an item at a given offset.
-     *
-     * @param mixed $key
-     *
-     * @return FilterColumnDataTransferObject
      */
-    public function offsetGet(mixed $key): FilterColumnDataTransferObject
+    public function offsetGet(mixed $key): FilterColumnData
     {
         // Illuminate\Support\Collection::offsetGet() defines type for $key as
         // mixed, however, it is used as offset into an array. Since array
@@ -28,9 +24,9 @@ class FilterColumnCollection extends Collection
 
         // This is for the benefit of static code analysis. parent::offsetGet
         // has return type of mixed. However, this method always returns
-        // an instance of FilterColumnDataTransferObject. Without this
+        // an instance of FilterColumnData. Without this
         // assert line, static code analysers will complain.
-        Assert::isInstanceOf($result, FilterColumnDataTransferObject::class);
+        Assert::isInstanceOf($result, FilterColumnData::class);
 
         return $result;
     }

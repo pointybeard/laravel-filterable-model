@@ -7,28 +7,20 @@ namespace Pointybeard\FilterableModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Spatie\DataTransferObject\Attributes\CastWith;
-use Spatie\DataTransferObject\DataTransferObject;
+use Spatie\LaravelData\Attributes\WithCastable;
+use Spatie\LaravelData\Data;
 use Webmozart\Assert\Assert;
 
-class Filter extends DataTransferObject
+class Filter extends Data
 {
-    public ?string $sortBy;
+    public function __construct(
+        public ?string $sortBy,
 
-    public ?string $sortOrder;
+        public ?string $sortOrder,
 
-    #[CastWith(FilterColumnCollectionCaster::class)]
-    public FilterColumnCollection $filters;
-
-    // Making the constructor final ensures that the child class cannot overload the constructor which
-    // would result in an unsafe new static() error in fromRequest() during static code analysis
-    // (see, https://phpstan.org/blog/solving-phpstan-error-unsafe-usage-of-new-static)
-    /**
-     * @param array<mixed> ...$args
-     */
-    final public function __construct(...$args)
-    {
-        parent::__construct(...$args);
+        #[WithCastable(FilterColumnCollectionCaster::class)]
+        public FilterColumnCollection $filters
+    ) {
     }
 
     public static function fromRequest(Request $request): self
@@ -38,22 +30,22 @@ class Filter extends DataTransferObject
         // Request::query() will return array, string, or null. We
         // only every want to deal with arrays. This will wrap
         // a string or null into an array.
-        if (false == is_array($query)) {
+        if (is_array($query) == false) {
             $query = [$query];
         }
 
-        return new static(
-            filters: array_filter( // remove anything that isn't a string
+        return self::from([
+            'filters' => array_filter( // remove anything that isn't a string
                 $query,
                 fn ($value) => is_string($value)
             ),
-            sortBy: $query['sort']['by'] ?? null,
-            sortOrder: $query['sort']['order'] ?? null
-        );
+            'sortBy' => $query['sort']['by'] ?? null,
+            'sortOrder' => $query['sort']['order'] ?? null,
+        ]);
     }
 
     /**
-     * @param array<int, mixed> $args
+     * @param  array<int, mixed>  $args
      */
     public function __call(string $name, array $args): Builder
     {
@@ -69,12 +61,12 @@ class Filter extends DataTransferObject
     protected function sort(Builder $builder, AbstractFilterableModel $model, string $by, string $order): Builder
     {
         // (guard) column doesn't exist
-        if (false == Schema::hasColumn($model->getTable(), $by)) {
+        if (Schema::hasColumn($model->getTable(), $by) == false) {
             $by = $model->getSortByDefault();
         }
 
         // (guard) order value invalid
-        if (false == in_array(strtolower($order), ['asc', 'desc'], true)) {
+        if (in_array(strtolower($order), ['asc', 'desc'], true) == false) {
             $order = $model->getSortOrderDefault();
         }
 
@@ -84,15 +76,15 @@ class Filter extends DataTransferObject
     public function apply(AbstractFilterableModel $model, Builder $builder): Builder
     {
         foreach ($this->filters as $f) {
-            if (false == $f instanceof FilterColumnDataTransferObject) {
+            if ($f instanceof FilterColumnData == false) {
                 continue;
             }
 
-            if ('sort' != $f->name && true == in_array($f->name, $model->getFilterable(), true) && true == Schema::hasColumn($model->getTable(), $f->name)) {
+            if ($f->name != 'sort' && in_array($f->name, $model->getFilterable(), true) == true && Schema::hasColumn($model->getTable(), $f->name) == true) {
                 $callable = [$this, $f->name];
 
                 // (guard)
-                if (false == is_callable($callable)) {
+                if (is_callable($callable) == false) {
                     continue;
                 }
 
@@ -104,7 +96,7 @@ class Filter extends DataTransferObject
             }
         }
 
-        if (true == $model->getSortable()) {
+        if ($model->getSortable() == true) {
             $this->sort(
                 $builder,
                 $model,

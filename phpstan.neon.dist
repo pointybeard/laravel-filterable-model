@@ -1,11 +1,11 @@
 parameters:
   level: 9
-
+  checkGenericClassInNonGenericObjectType: false
+  treatPhpDocTypesAsCertain: false
   reportMaybesInPropertyPhpDocTypes: false
 
   paths:
     - src
-    - tests
 
   excludePaths:
     - vendor
